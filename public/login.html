@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>IkyTools · Login Modern </title>
+    <!-- Google Fonts + Font Awesome 6 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 20% 30%, #0f172a 0%, #0a0f1c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            padding: 1.5rem;
+        }
+
+        /* animated gradient orbs */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(102,126,234,0.4) 0%, rgba(118,75,162,0.25) 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: floatOrb 18s infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            bottom: -15%;
+            right: -5%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(245,87,108,0.3) 0%, rgba(240,147,251,0.2) 70%);
+            border-radius: 50%;
+            filter: blur(90px);
+            animation: floatOrb2 22s infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+            100% { transform: translate(80px, 60px) scale(1.2); opacity: 0.7; }
+        }
+
+        @keyframes floatOrb2 {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            100% { transform: translate(-70px, -50px) scale(1.3); opacity: 0.6; }
+        }
+
+        /* particle system */
+        .particle-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(1px);
+            animation: particleDrift 12s infinite linear;
+        }
+        
+        @keyframes particleDrift {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(60px);
+                opacity: 0;
+            }
+        }
+
+        .login-container {
+            background: rgba(18, 25, 45, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 2.5rem;
+            padding: 2.5rem 2.2rem;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            animation: fadeUp 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.1) forwards;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 15px 30px -8px rgba(102,126,234,0.4);
+        }
+        
+        .logo-icon i {
+            font-size: 2.4rem;
+            color: white;
+        }
+        
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(125deg, #ffffff, #c0b9ff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        
+        .tagline {
+            text-align: center;
+            color: #9ca3cf;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+
+        h2 {
+            text-align: center;
+            color: #f0f3ff;
+            margin-bottom: 1.8rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        h2 i {
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        .input-group i.input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b92b0;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            transition: all 0.25s;
+            background: rgba(10, 16, 28, 0.7);
+            color: #f0f3ff;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(20, 30, 50, 0.9);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .input-group input::placeholder {
+            color: #6b728e;
+            font-weight: 400;
+        }
+        
+        .input-group label {
+            position: absolute;
+            left: 48px;
+            top: -11px;
+            background: rgba(18, 25, 45, 0.95);
+            padding: 0 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #a78bfa;
+            letter-spacing: 0.3px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            pointer-events: none;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #8b92b0;
+            transition: 0.2s;
+            z-index: 3;
+            background: transparent;
+        }
+        
+        .toggle-password:hover {
+            color: #c084fc;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(105deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px -8px rgba(102,126,234,0.5);
+            letter-spacing: 0.3px;
+            position: relative;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+            box-shadow: 0 18px 28px -10px #667eea;
+        }
+        
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 1.8rem;
+            color: #9ca3cf;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .register-link a {
+            color: #c084fc;
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 5px;
+            transition: 0.2s;
+            border-bottom: 1px dashed rgba(192,132,252,0.4);
+        }
+        
+        .register-link a:hover {
+            color: #e9b0ff;
+            border-bottom-color: #e9b0ff;
+        }
+        
+        .message {
+            background: rgba(255, 71, 87, 0.92);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 0.85rem;
+            border-radius: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            animation: shakeMsg 0.4s ease;
+        }
+        
+        .message.success {
+            background: rgba(16, 185, 129, 0.92);
+        }
+        
+        @keyframes shakeMsg {
+            0%,100%{ transform: translateX(0); }
+            25%{ transform: translateX(-5px); }
+            75%{ transform: translateX(5px); }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top: 3px solid #a78bfa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading p {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #b9c2e6;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.8rem 1.5rem;
+            }
+            .logo-icon {
+                width: 55px;
+                height: 55px;
+            }
+            .logo-text {
+                font-size: 1.6rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* demo credentials hint */
+        .demo-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6b728e;
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .demo-hint i {
+            margin-right: 4px;
+        }
+        
+        .demo-hint span {
+            color: #a78bfa;
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 20px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="particle-field" id="particleField"></div>
+
+<div class="login-container">
+    <div class="logo-area">
+        <div class="logo-icon">
+            <i class="fas fa-bolt"></i>
+        </div>
+        <div class="logo-text">IkyTools</div>
+        <div class="tagline"> akses tools canggih & modern</div>
+    </div>
+    
+    <h2>
+        <i class="fas fa-key"></i> Login
+    </h2>
+    
+    <div class="message" id="messageBox"></div>
+    
+    <form id="loginForm">
+        <div class="input-group">
+            <i class="fas fa-user input-icon"></i>
+            <label>Username</label>
+            <input type="text" id="username" placeholder="username kamu" autocomplete="username">
+        </div>
+        
+        <div class="input-group">
+            <i class="fas fa-lock input-icon"></i>
+            <label>Password</label>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+            <i class="fas fa-eye toggle-password" id="togglePasswordIcon"></i>
+        </div>
+        
+        <button type="submit" id="loginBtn">
+            <i class="fas fa-arrow-right-to-bracket"></i> Masuk Sekarang
+        </button>
+    </form>
+    
+    <div class="register-link">
+        <i class="fas fa-user-plus"></i> Belum punya akun?
+        <a href="/daftar" id="registerLink">Daftar Gratis </a>
+    </div>
+    
+    <div class="demo-hint">
+        <i class="fas fa-flask"></i> Demo: <span>demo</span> / <span>demo</span>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Memverifikasi akun...</p>
+    </div>
+</div>
+
+<script>
+    // ========== PARTICLE SYSTEM ==========
+    function createParticles() {
+        const container = document.getElementById('particleField');
+        if (!container) return;
+        const particleCount = 60;
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 5 + 1.5;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = 8 + Math.random() * 14 + 's';
+            particle.style.opacity = Math.random() * 0.5 + 0.2;
+            particle.style.background = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.2})`;
+            container.appendChild(particle);
+        }
+    }
+    createParticles();
+    
+    // ========== AUDIO CLICK (optional, non-blocking) ==========
+    let clickAudio = null;
+    try {
+        clickAudio = new Audio("/audio/click.mp3");
+        clickAudio.volume = 0.2;
+        clickAudio.preload = "auto";
+    } catch(e) { /* silent fallback */ }
+    
+    function playClick() {
+        if (clickAudio) {
+            const clone = clickAudio.cloneNode();
+            clone.play().catch(() => {});
+        }
+    }
+    
+    // ========== TOGGLE PASSWORD ==========
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    
+    if (toggleIcon && passwordInput) {
+        toggleIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+            playClick();
+        });
+    }
+    
+    // ========== DOM ELEMENTS ==========
+    const loginForm = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const messageBox = document.getElementById('messageBox');
+    const loadingDiv = document.getElementById('loading');
+    const loginBtn = document.getElementById('loginBtn');
+    
+    // Helper functions
+    function hideMessage() {
+        messageBox.style.display = 'none';
+        messageBox.textContent = '';
+        messageBox.classList.remove('success');
+    }
+    
+    function showMessage(text, isError = true) {
+        messageBox.textContent = text;
+        messageBox.style.display = 'block';
+        if (!isError) {
+            messageBox.classList.add('success');
+        } else {
+            messageBox.classList.remove('success');
+        }
+        // auto hide after 4 seconds
+        setTimeout(() => {
+            if (messageBox.textContent === text) {
+                messageBox.style.display = 'none';
+                messageBox.classList.remove('success');
+            }
+        }, 4000);
+    }
+    
+    function validateForm(username, password) {
+        if (!username || username.trim().length < 2) {
+            return "Username harus diisi (min. 2 karakter)";
+        }
+        if (!password || password.length === 0) {
+            return "Password tidak boleh kosong";
+        }
+        return null;
+    }
+    
+    // Reset button state
+    function resetButtonState(originalHtml) {
+        if (loginBtn) {
+            loginBtn.innerHTML = originalHtml || '<i class="fas fa-arrow-right-to-bracket"></i> Masuk Sekarang';
+            loginBtn.disabled = false;
+        }
+        if (loadingDiv) {
+            loadingDiv.style.display = 'none';
+        }
+    }
+    
+    // Set loading state
+    function setLoadingState(isLoading, originalHtml) {
+        if (isLoading) {
+            if (loginBtn) {
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Memproses...';
+                loginBtn.disabled = true;
+            }
+            if (loadingDiv) {
+                loadingDiv.style.display = 'block';
+            }
+        } else {
+            resetButtonState(originalHtml);
+        }
+    }
+    
+    // ========== LOGIN HANDLER ==========
+    let isSubmitting = false;
+    const originalBtnHtml = loginBtn ? loginBtn.innerHTML : null;
+    
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        playClick();
+        
+        // Prevent double submission
+        if (isSubmitting) return;
+        isSubmitting = true;
+        
+        hideMessage();
+        
+        const username = usernameInput ? usernameInput.value.trim() : '';
+        const password = passwordInput ? passwordInput.value : '';
+        
+        const validationError = validateForm(username, password);
+        if (validationError) {
+            showMessage(validationError, true);
+            isSubmitting = false;
+            // shake effect on inputs
+            if (usernameInput) usernameInput.style.transform = 'translateX(3px)';
+            if (passwordInput) passwordInput.style.transform = 'translateX(3px)';
+            setTimeout(() => {
+                if (usernameInput) usernameInput.style.transform = '';
+                if (passwordInput) passwordInput.style.transform = '';
+            }, 200);
+            return;
+        }
+        
+        // Show loading
+        setLoadingState(true, originalBtnHtml);
+        
+        try {
+            // Attempt real API call
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Save user data
+                if (data.user) {
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                }
+                if (data.token) {
+                    localStorage.setItem('authToken', data.token);
+                }
+                showMessage(' Login berhasil! Mengalihkan...', false);
+                setLoadingState(false, originalBtnHtml);
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1200);
+            } else {
+                showMessage(data.error || 'Username atau password salah!', true);
+                setLoadingState(false, originalBtnHtml);
+                // shake animation
+                if (usernameInput) usernameInput.style.borderColor = '#ff4757';
+                if (passwordInput) passwordInput.style.borderColor = '#ff4757';
+                setTimeout(() => {
+                    if (usernameInput) usernameInput.style.borderColor = '';
+                    if (passwordInput) passwordInput.style.borderColor = '';
+                }, 1000);
+            }
+        } catch (error) {
+            console.warn('API error, using demo fallback:', error);
+            // DEMO MODE FALLBACK - untuk testing tanpa backend
+            // Cek apakah menggunakan akun demo
+            if (username === 'demo' && password === 'demo') {
+                localStorage.setItem('currentUser', JSON.stringify({ 
+                    username: 'demo', 
+                    email: 'demo@ikytools.com',
+                    name: 'Demo User'
+                }));
+                showMessage(' Mode Demo: Login berhasil! Mengalihkan...', false);
+                setLoadingState(false, originalBtnHtml);
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1200);
+            } else {
+                showMessage(' Koneksi gagal. Gunakan akun demo: username "demo" password "demo"', true);
+                setLoadingState(false, originalBtnHtml);
+            }
+        } finally {
+            isSubmitting = false;
+            // reset button if somehow still disabled after 3s without redirect
+            setTimeout(() => {
+                if (loginBtn && loginBtn.disabled && !window.location.href.includes('dashboard')) {
+                    setLoadingState(false, originalBtnHtml);
+                }
+            }, 5000);
+        }
+    });
+    
+    // ========== REGISTER LINK SOUND ==========
+    const registerLink = document.getElementById('registerLink');
+    if (registerLink) {
+        registerLink.addEventListener('click', (e) => {
+            playClick();
+        });
+    }
+    
+    // ========== ENTER KEY SUPPORT ==========
+    const inputs = [usernameInput, passwordInput];
+    inputs.forEach(input => {
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+                    loginForm.dispatchEvent(submitEvent);
+                }
+            });
+        }
+    });
+    
+    // ========== FOCUS EFFECTS ==========
+    const allInputGroups = document.querySelectorAll('.input-group');
+    allInputGroups.forEach(group => {
+        const input = group.querySelector('input');
+        const icon = group.querySelector('.input-icon');
+        if (input && icon) {
+            input.addEventListener('focus', () => {
+                if (icon) icon.style.color = '#c084fc';
+            });
+            input.addEventListener('blur', () => {
+                if (icon) icon.style.color = '#8b92b0';
+            });
+        }
+    });
+    
+    // Clean up any existing localStorage demo if needed
+    console.log('Login page ready - Tombol login berfungsi dengan baik');
+</script>
+</body>
+</html>
