@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>IkyTools · Daftar Akun </title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 10% 30%, #0f1929 0%, #0a1220 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .main-wrapper {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .register-container {
+            background: rgba(18, 26, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .brand-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff6b6b, #f5576c);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .brand-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #ff9aa8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subhead {
+            text-align: center;
+            color: #9aa8c9;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8f9bb5;
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(10, 16, 28, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 14px 16px 14px 45px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            background: rgba(20, 30, 50, 0.9);
+        }
+
+        .input-group input::placeholder {
+            color: #6a759b;
+        }
+
+        .gender-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #b9c4e6;
+            margin-bottom: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .gender-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: rgba(15, 22, 38, 0.7);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b9c3e2;
+            transition: all 0.2s;
+        }
+
+        .gender-btn i {
+            font-size: 1rem;
+        }
+
+        .gender-btn.selected {
+            background: linear-gradient(135deg, #ff6b6b, #f5576c);
+            color: white;
+            border-color: transparent;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff6b6b, #f5576c);
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .register-btn:active {
+            transform: translateY(0);
+        }
+
+        .register-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #9aa9ce;
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: #ff8c9e;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 50px;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.9);
+            color: white;
+        }
+
+        .success-message {
+            background: rgba(0, 184, 148, 0.9);
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 1.5rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            .gender-btn {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="register-container">
+        <div class="brand-header">
+            <div class="brand-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h2>IkyTools</h2>
+            <div class="subhead">Bergabung & jelajahi tools keren </div>
+        </div>
+        
+        <div class="message error-message" id="errorMsg"></div>
+        <div class="message success-message" id="successMsg"></div>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="Username" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email aktif" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-calendar-alt"></i>
+                <input type="number" id="umur" placeholder="Umur" min="1" max="120" required>
+            </div>
+            
+            <div class="gender-label">
+                <i class="fas fa-venus-mars"></i> Jenis Kelamin
+            </div>
+            <div class="gender-group">
+                <div class="gender-btn" data-gender="pria">
+                    <i class="fas fa-mars"></i> Pria
+                </div>
+                <div class="gender-btn" data-gender="wanita">
+                    <i class="fas fa-venus"></i> Wanita
+                </div>
+            </div>
+            
+            <button type="submit" class="register-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> Daftar Sekarang
+            </button>
+        </form>
+        
+        <div class="login-link">
+            Sudah punya akun? <a href="/login" id="loginRedirectLink">Masuk</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function playClick() {
+        const audio = new Audio('/audio/click.mp3');
+        audio.play().catch(e => console.log('Audio blocked'));
+    }
+    
+    // GENDER SELECTION
+    let selectedGender = null;
+    const genderBtns = document.querySelectorAll('.gender-btn');
+    genderBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            playClick();
+            genderBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedGender = btn.dataset.gender;
+        });
+    });
+    
+    const registerForm = document.getElementById('registerForm');
+    const errorDiv = document.getElementById('errorMsg');
+    const successDiv = document.getElementById('successMsg');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    function resetMessages() {
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        successDiv.textContent = '';
+    }
+    
+    function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 4000);
+    }
+    
+    function showSuccess(message) {
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+        setTimeout(() => {
+            successDiv.style.display = 'none';
+        }, 3000);
+    }
+    
+    function validateInputs(username, password, email, umur) {
+        if (!username || username.length < 3) return "Username minimal 3 karakter";
+        if (username.length > 30) return "Username terlalu panjang (max 30)";
+        if (!password || password.length < 5) return "Password minimal 5 karakter";
+        const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+        if (!emailRegex.test(email)) return "Email tidak valid";
+        if (isNaN(umur) || umur < 12) return "Minimal umur 12 tahun";
+        if (umur > 100) return "Umur tidak valid (maks 100)";
+        return null;
+    }
+    
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        playClick();
+        resetMessages();
+        
+        if (!selectedGender) {
+            showError("Pilih jenis kelamin terlebih dahulu!");
+            return;
+        }
+        
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const email = document.getElementById('email').value.trim();
+        const umur = parseInt(document.getElementById('umur').value);
+        
+        const validationErr = validateInputs(username, password, email, umur);
+        if (validationErr) {
+            showError(validationErr);
+            return;
+        }
+        
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Memproses...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, email, umur, gender: selectedGender })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                showSuccess(' Pendaftaran sukses! Mengalihkan...');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+            } else {
+                showError(data.error || 'Registrasi gagal!');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            showError("Koneksi gagal, coba lagi nanti");
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+    
+    const loginLink = document.getElementById('loginRedirectLink');
+    if (loginLink) {
+        loginLink.addEventListener('click', () => playClick());
+    }
+    
+    const umurInput = document.getElementById('umur');
+    umurInput.addEventListener('change', () => {
+        let val = parseInt(umurInput.value);
+        if (val < 12) umurInput.value = 12;
+        if (val > 100) umurInput.value = 100;
+    });
+</script>
+</body>
+</html>
