@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - IkyTools 🔥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0f1f 0%, #1a1a2e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(15,15,31,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .menu-icon {
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .profile-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .profile-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background: rgba(20,20,40,0.98);
+            backdrop-filter: blur(10px);
+            transition: left 0.3s ease;
+            z-index: 200;
+            padding: 80px 20px 20px;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .sidebar-item {
+            padding: 15px 20px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 16px;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(102,126,234,0.3);
+            transform: translateX(10px);
+        }
+        
+        /* Profile Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #1e1e2e;
+            padding: 30px;
+            border-radius: 20px;
+            width: 400px;
+            max-width: 90%;
+        }
+        
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            background: #2a2a3a;
+            color: white;
+        }
+        
+        .modal-content button {
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 30px;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+            border-radius: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .owner-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #667eea;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        
+        .social-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .social-btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .tiktok { background: #000000; border: 1px solid #00f2ea; }
+        .instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        
+        .limit-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            border-left: 3px solid #4facfe;
+            z-index: 99;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(102,126,234,0.2);
+            border-color: #667eea;
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <audio id="clickSound" src="/audio/click.mp3" preload="auto"></audio>
+    
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="menu-icon" onclick="toggleSidebar(); playClick()">☰</div>
+        <div class="logo">🔥 IkyTools</div>
+        <div class="profile-icon" id="profileIcon" onclick="openProfileModal(); playClick()"></div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-item" onclick="goToPage('/roblox'); playClick()">🎮 Roblox Stalk</div>
+        <div class="sidebar-item" onclick="goToPage('/tiktok-stalk'); playClick()">📱 TikTok Stalk</div>
+        <div class="sidebar-item" onclick="goToPage('/bstation'); playClick()">🎬 BStation Search</div>
+        <div class="sidebar-item" onclick="goToPage('/pinterest'); playClick()">🖼️ Pinterest Download</div>
+        <div class="sidebar-item" onclick="goToPage('/capcut'); playClick()">✂️ CapCut Download</div>
+        <div class="sidebar-item" onclick="goToPage('/instagram'); playClick()">📸 Instagram Download</div>
+        <div class="sidebar-item" onclick="goToPage('/tiktok-dl'); playClick()">🎵 TikTok Download</div>
+        <div class="sidebar-item" onclick="goToPage('/upload'); playClick()">📤 Upload File</div>
+        <div class="sidebar-item" onclick="goToPage('/status'); playClick()">📊 System Status</div>
+        <div class="sidebar-item" onclick="logout(); playClick()">🚪 Logout</div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <h2>Edit Profile</h2>
+            <input type="text" id="editUsername" placeholder="Username Baru">
+            <input type="email" id="editEmail" placeholder="Email Baru">
+            <input type="password" id="editPassword" placeholder="Password Baru">
+            <button onclick="updateProfile(); playClick()" style="background:#667eea; color:white;">Update Profile</button>
+            <button onclick="closeProfileModal(); playClick()" style="background:#ff4757; color:white; margin-top:10px;">Tutup</button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="hero">
+            <img src="https://via.placeholder.com/120" alt="Owner" class="owner-avatar" id="ownerAvatar">
+            <h1>IkyTools Premium</h1>
+            <p>All-in-One Downloader & Stalker Tools</p>
+            <div class="social-buttons">
+                <a href="https://tiktok.com/@iky" target="_blank" class="social-btn tiktok" onclick="playClick()">TikTok</a>
+                <a href="https://instagram.com/iky" target="_blank" class="social-btn instagram" onclick="playClick()">Instagram</a>
+            </div>
+        </div>
+        
+        <h2 style="margin-bottom: 20px;">✨ Fitur Unggulan</h2>
+        <div class="feature-grid">
+            <div class="feature-card" onclick="goToPage('/roblox')">
+                <div class="feature-icon">🎮</div>
+                <div class="feature-title">Roblox Stalker</div>
+                <div class="feature-desc">Lihat profil user Roblox</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/tiktok-stalk')">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">TikTok Stalker</div>
+                <div class="feature-desc">Stalk akun TikTok</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/bstation')">
+                <div class="feature-icon">🎬</div>
+                <div class="feature-title">BStation Search</div>
+                <div class="feature-desc">Cari anime favoritmu</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/pinterest')">
+                <div class="feature-icon">🖼️</div>
+                <div class="feature-title">Pinterest Download</div>
+                <div class="feature-desc">Download gambar berkualitas</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/capcut')">
+                <div class="feature-icon">✂️</div>
+                <div class="feature-title">CapCut Download</div>
+                <div class="feature-desc">Download template CapCut</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/instagram')">
+                <div class="feature-icon">📸</div>
+                <div class="feature-title">Instagram Download</div>
+                <div class="feature-desc">Download video/foto IG</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/tiktok-dl')">
+                <div class="feature-icon">🎵</div>
+                <div class="feature-title">TikTok Download</div>
+                <div class="feature-desc">Download video TikTok</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/upload')">
+                <div class="feature-icon">📤</div>
+                <div class="feature-title">Upload File</div>
+                <div class="feature-desc">Upload ke Catbox</div>
+            </div>
+            <div class="feature-card" onclick="goToPage('/status')">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">System Status</div>
+                <div class="feature-desc">Cek status server</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="limit-badge" id="limitBadge">🎯 Limit: 50/50</div>
+    
+    <script>
+        let currentUser = null;
+        
+        function playClick() {
+            const audio = document.getElementById('clickSound');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log('Audio blocked'));
+            }
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+        
+        function goToPage(url) {
+            window.location.href = url;
+        }
+        
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'flex';
+            document.getElementById('editUsername').value = currentUser.username;
+            document.getElementById('editEmail').value = currentUser.email;
+            document.getElementById('editPassword').value = '';
+        }
+        
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+        
+        async function updateProfile() {
+            const newUsername = document.getElementById('editUsername').value;
+            const newEmail = document.getElementById('editEmail').value;
+            const newPassword = document.getElementById('editPassword').value;
+            
+            if (!newUsername && !newEmail && !newPassword) {
+                alert('Isi minimal satu field!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/update-profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        newName: newUsername || undefined,
+                        newPassword: newPassword || undefined,
+                        newEmail: newEmail || undefined
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    if (newUsername) {
+                        currentUser.username = newUsername;
+                        currentUser.avatar = newUsername.charAt(0).toUpperCase();
+                    }
+                    if (newEmail) currentUser.email = newEmail;
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    document.getElementById('profileIcon').textContent = currentUser.avatar;
+                    alert('Profile updated!');
+                    closeProfileModal();
+                } else {
+                    alert(data.error || 'Update failed!');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        function updateLimitDisplay() {
+            if (currentUser) {
+                document.getElementById('limitBadge').textContent = `🎯 Limit: ${currentUser.limit}/50`;
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '/login';
+        }
+        
+        // Load user data
+        async function loadUser() {
+            const userData = localStorage.getItem('currentUser');
+            if (!userData) {
+                window.location.href = '/login';
+                return;
+            }
+            currentUser = JSON.parse(userData);
+            document.getElementById('profileIcon').textContent = currentUser.avatar;
+            updateLimitDisplay();
+        }
+        
+        loadUser();
+    </script>
+</body>
+</html>
