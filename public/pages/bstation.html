@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .bstation-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .search-section {
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .search-box button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .recommendations {
+            margin-bottom: 30px;
+        }
+        
+        .recommend-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #4facfe;
+        }
+        
+        .anime-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .anime-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .anime-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .anime-thumb {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        
+        .anime-info {
+            padding: 15px;
+        }
+        
+        .anime-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .anime-meta {
+            font-size: 12px;
+            opacity: 0.7;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+        }
+        
+        .search-result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bstation-container">
+        <h2>🎬 BStation Anime Search</h2>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Cari anime favoritmu..." onkeypress="if(event.key === 'Enter') searchAnime()">
+                <button onclick="searchAnime()">🔍 Search</button>
+            </div>
+        </div>
+        
+        <div class="recommendations" id="recommendations">
+            <div class="recommend-title">🔥 Rekomendasi Anime Populer</div>
+            <div class="anime-grid" id="recommendGrid">
+                <div class="loading-spinner-container">
+                    <div class="loading-spinner"></div>
+                    <p>Loading rekomendasi...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="recommend-title">📺 Hasil Pencarian</div>
+            <div id="searchResults" class="search-result-grid"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Load recommendations on page load
+        async function loadRecommendations() {
+            const recommendGrid = document.getElementById('recommendGrid');
+            
+            try {
+                const allowed = await checkAndUpdateLimit();
+                if (!allowed) {
+                    recommendGrid.innerHTML = '<p style="text-align:center;">Limit habis hari ini! Besok lagi ya!</p>';
+                    return;
+                }
+                
+                const response = await fetch(`/api/bstation?username=${window.currentUser?.username}&q=One+piece`);
+                const data = await response.json();
+                
+                if (data.status && data.result) {
+                    const animes = data.result.slice(0, 6); // Show first 6
+                    recommendGrid.innerHTML = animes.map(anime => `
+                        <div class="anime-card" onclick="playClick(); searchWithQuery('${escapeHtml(anime.title.split(' ')[0])}')">
+                            <img src="${anime.thumbnail}" class="anime-thumb" onerror="this.src='https://via.placeholder.com/280x160?text=No+Image'">
+                            <div class="anime-info">
+                                <div class="anime-title">${escapeHtml(anime.title)}</div>
+                                <div class="anime-meta">
+                                    <span>👤 ${escapeHtml(anime.uploader)}</span>
+                                    <span>👁️ ${anime.views}</span>
+                                </div>
+                                <div class="anime-meta">
+                                    <span>⏱️ ${anime.duration}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    await useLimit();
+                } else {
+                    recommendGrid.innerHTML = '<p style="text-align:center;">Gagal load rekomendasi</p>';
+                }
+            } catch (error) {
+                recommendGrid.innerHTML = '<p style="text-align:center;">Error loading recommendations</p>';
+                console.error(error);
+            }
+        }
+        
+        async function searchAnime() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                showToast('Masukkan kata kunci pencarian!', 'error');
+                return;
+            }
+            searchWithQuery(query);
+        }
+        
+        async function searchWithQuery(query) {
+            const resultSection = document.getElementById('resultSection');
+            const searchResults = document.getElementById('searchResults');
+            const recommendations = document.getElementById('recommendations');
+            
+            // Check limit
+            const allowed = await checkAndUpdateLimit();
+            if (!allowed) return;
+            
+            resultSection.style.display = 'block';
+            recommendations.style.display = 'none';
+            searchResults.innerHTML = '<div class="loading-spinner-container"><div class="loading-spinner"></div><p>Mencari anime...</p></div>';
+            
+            try {
+                const response = await fetch(`/api/bstation?username=${window.currentUser?.username}&q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.status && data.result && data.result.length > 0) {
+                    searchResults.innerHTML = data.result.map(anime => `
+                        <div class="anime-card">
+                            <img src="${anime.thumbnail}" class="anime-thumb" onerror="this.src='https://via.placeholder.com/280x160?text=No+Image'">
+                            <div class="anime-info">
+                                <div class="anime-title">${escapeHtml(anime.title)}</div>
+                                <div class="anime-meta">
+                                    <span>👤 ${escapeHtml(anime.uploader)}</span>
+                                    <span>👁️ ${anime.views}</span>
+                                </div>
+                                <div class="anime-meta">
+                                    <span>⏱️ ${anime.duration}</span>
+                                </div>
+                                <button class="download-btn" onclick="window.open('${anime.url}', '_blank'); playClick()">
+                                    🎬 Tonton Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    await useLimit();
+                } else {
+                    searchResults.innerHTML = '<p style="text-align:center;">Tidak ada hasil ditemukan</p>';
+                }
+            } catch (error) {
+                searchResults.innerHTML = '<p style="text-align:center;">Error: ' + error.message + '</p>';
+            }
+        }
+        
+        function showRecommendations() {
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'block';
+        }
+        
+        // Load recommendations on page load
+        loadRecommendations();
+    </script>
+</body>
+</html>

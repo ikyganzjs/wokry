@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .stalk-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .search-box button {
+            padding: 15px 30px;
+            background: #000000;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .result-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        .avatar-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-box {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4facfe;
+        }
+    </style>
+</head>
+<body>
+    <div class="stalk-container">
+        <h2>📱 TikTok Stalker</h2>
+        <div class="search-box">
+            <input type="text" id="tiktokUser" placeholder="Masukkan username TikTok...">
+            <button onclick="stalkTikTok()">🔍 Stalk</button>
+        </div>
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function stalkTikTok() {
+            const username = document.getElementById('tiktokUser').value.trim();
+            if (!username) {
+                showToast('Masukkan username TikTok!', 'error');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="loading-spinner-container"><div class="loading-spinner"></div><p>Stalking...</p></div>';
+            
+            const allowed = await checkAndUpdateLimit();
+            if (!allowed) return;
+            
+            try {
+                const response = await fetch(`/api/tiktok-stalk?username=${window.currentUser?.username}&tiktokUser=${username}`);
+                const data = await response.json();
+                
+                if (data.status && data.result) {
+                    const r = data.result;
+                    resultDiv.innerHTML = `
+                        <div class="result-card">
+                            <img src="${r.avatar}" class="avatar-img" onerror="this.src='https://via.placeholder.com/100'">
+                            <h3>${r.nickname || r.uniqueId}</h3>
+                            <p>@${r.uniqueId}</p>
+                            ${r.verified ? '<span style="color:#00f2ea;">✓ Verified</span>' : ''}
+                            <div class="stats">
+                                <div class="stat-box">
+                                    <div class="stat-number">${formatNumber(r.followers || 0)}</div>
+                                    <div>Followers</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">${formatNumber(r.following || 0)}</div>
+                                    <div>Following</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">${formatNumber(r.likes || 0)}</div>
+                                    <div>Likes</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">${formatNumber(r.videos || 0)}</div>
+                                    <div>Videos</div>
+                                </div>
+                            </div>
+                            <button class="download-btn" onclick="copyToClipboard('@${r.uniqueId}')">📋 Copy Username</button>
+                        </div>
+                    `;
+                    await useLimit();
+                } else {
+                    resultDiv.innerHTML = '<div class="result-card"><p>❌ User tidak ditemukan!</p></div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result-card"><p>❌ Error: ${error.message}</p></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

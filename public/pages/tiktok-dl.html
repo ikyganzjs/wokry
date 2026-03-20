@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .tiktok-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .url-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .url-input input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .url-input button {
+            padding: 15px 30px;
+            background: #000000;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .result-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .video-preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .video-preview video {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 15px;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .dl-btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .dl-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-sd { background: #4facfe; color: white; }
+        .btn-hd { background: #00ff88; color: black; }
+        .btn-audio { background: #ff4757; color: white; }
+        
+        .info-text {
+            margin: 10px 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="tiktok-container">
+        <h2>🎵 TikTok Video Downloader</h2>
+        <p style="margin-bottom: 20px; opacity: 0.7;">Download video TikTok tanpa watermark!</p>
+        
+        <div class="url-input">
+            <input type="text" id="tiktokUrl" placeholder="Masukkan URL TikTok... (contoh: https://www.tiktok.com/@username/video/xxxx)">
+            <button onclick="downloadTikTok()">📥 Download</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function downloadTikTok() {
+            const url = document.getElementById('tiktokUrl').value.trim();
+            if (!url) {
+                showToast('Masukkan URL TikTok!', 'error');
+                return;
+            }
+            
+            if (!url.includes('tiktok.com')) {
+                showToast('URL tidak valid! Masukkan URL TikTok yang benar.', 'error');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="loading-spinner-container"><div class="loading-spinner"></div><p>Memproses video...</p></div>';
+            
+            // Check limit
+            const allowed = await checkAndUpdateLimit();
+            if (!allowed) return;
+            
+            try {
+                const response = await fetch(`/api/tiktok-dl?username=${window.currentUser?.username}&url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                
+                if (data.status && data.result) {
+                    const r = data.result;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="result-card">
+                            <div class="video-preview">
+                                ${r.thumbnail ? `<img src="${r.thumbnail}" style="max-width: 100%; border-radius: 15px;">` : ''}
+                                <div class="info-text">📝 ${escapeHtml(r.title || 'No title')}</div>
+                            </div>
+                            <div class="download-buttons">
+                                ${r.video_sd ? `<button class="dl-btn btn-sd" onclick="downloadVideo('${r.video_sd}', 'tiktok_video_sd.mp4')">🎬 Download SD</button>` : ''}
+                                ${r.video_hd ? `<button class="dl-btn btn-hd" onclick="downloadVideo('${r.video_hd}', 'tiktok_video_hd.mp4')">🎬 Download HD</button>` : ''}
+                                ${r.mp3 ? `<button class="dl-btn btn-audio" onclick="downloadVideo('${r.mp3}', 'tiktok_audio.mp3')">🎵 Download Audio</button>` : ''}
+                            </div>
+                            <div class="info-text" style="margin-top: 15px;">
+                                ⚡ Klik tombol download, video akan diunduh langsung
+                            </div>
+                        </div>
+                    `;
+                    
+                    await useLimit();
+                } else {
+                    resultDiv.innerHTML = '<div class="result-card"><p>❌ Gagal memproses video. Cek URL atau coba lagi nanti.</p></div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result-card"><p>❌ Error: ${error.message}</p></div>`;
+            }
+        }
+        
+        function downloadVideo(url, filename) {
+            playClick();
+            window.open(url, '_blank');
+            showToast('Download dimulai! Cek tab baru.', 'success');
+        }
+    </script>
+</body>
+</html>

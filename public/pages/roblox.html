@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .feature-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .search-box button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .result-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .avatar-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .download-btn {
+            background: #00f2fe;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feature-container">
+        <h2>🎮 Roblox Stalker</h2>
+        <div class="search-box">
+            <input type="text" id="robloxUsername" placeholder="Masukkan username Roblox...">
+            <button onclick="stalkRoblox()">🔍 Stalk</button>
+        </div>
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function stalkRoblox() {
+            const username = document.getElementById('robloxUsername').value;
+            if (!username) return alert('Isi username!');
+            
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch(`/api/roblox?username=${currentUser.username}&robloxUser=${username}`);
+                const data = await response.json();
+                
+                if (data.status && data.result) {
+                    const r = data.result;
+                    resultDiv.innerHTML = `
+                        <div class="result-card">
+                            <img src="${r.avatar}" class="avatar-img">
+                            <h3>${r.displayName} (${r.name})</h3>
+                            <p>ID: ${r.id}</p>
+                            <p>Created: ${new Date(r.created).toLocaleDateString()}</p>
+                            <p>Friends: ${r.counts.friends} | Followers: ${r.counts.followers} | Following: ${r.counts.following}</p>
+                            <button class="download-btn" onclick="playClick()">📥 Simpan Data</button>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p>User tidak ditemukan!</p>';
+                }
+                
+                // Update limit display
+                updateLimitDisplay();
+            } catch (error) {
+                resultDiv.innerHTML = '<p>Error: ' + error.message + '</p>';
+            }
+        }
+        
+        function playClick() {
+            const audio = new Audio('/audio/click.mp3');
+            audio.play().catch(e => console.log('Audio blocked'));
+        }
+        
+        async function updateLimitDisplay() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const response = await fetch('/api/check-limit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: currentUser.username })
+            });
+            const data = await response.json();
+            if (data.allowed) {
+                currentUser.limit = data.limit;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                const badge = document.querySelector('.limit-badge');
+                if (badge) badge.textContent = `Limit: ${data.limit}/50`;
+            }
+        }
+    </script>
+</body>
+</html>

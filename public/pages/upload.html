@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .upload-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .drop-zone {
+            border: 2px dashed rgba(102,126,234,0.5);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102,126,234,0.1);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .preview-area {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .preview-area.show {
+            display: block;
+        }
+        
+        .uploaded-url {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: #4facfe;
+            color: white;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h2>📤 Upload File ke Catbox</h2>
+        <p style="margin-bottom: 20px; opacity: 0.7;">Support: Image, Video, Audio, Document (Max 200MB)</p>
+        
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size: 48px;">📁</div>
+            <p>Drag & Drop file disini atau klik untuk upload</p>
+            <p style="font-size: 12px; opacity: 0.6;">Maksimal 200MB</p>
+        </div>
+        
+        <input type="file" id="fileInput" class="file-input" onchange="handleFileSelect(this.files)">
+        
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="preview-area" id="previewArea">
+            <h4>Preview:</h4>
+            <div id="mediaPreview"></div>
+            <div class="uploaded-url" id="uploadedUrl"></div>
+            <button class="upload-btn" onclick="uploadToCatbox()">🚀 Upload Sekarang</button>
+        </div>
+    </div>
+    
+    <script>
+        let selectedFile = null;
+        
+        // Drag & drop handlers
+        const dropZone = document.getElementById('dropZone');
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect(files);
+            }
+        });
+        
+        function handleFileSelect(files) {
+            if (!files || files.length === 0) return;
+            
+            selectedFile = files[0];
+            
+            // Check file size (200MB limit)
+            if (selectedFile.size > 200 * 1024 * 1024) {
+                showToast('File terlalu besar! Maksimal 200MB', 'error');
+                return;
+            }
+            
+            // Preview media
+            const previewDiv = document.getElementById('mediaPreview');
+            const fileType = selectedFile.type;
+            const url = URL.createObjectURL(selectedFile);
+            
+            if (fileType.startsWith('image/')) {
+                previewDiv.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 300px; border-radius: 10px;">`;
+            } else if (fileType.startsWith('video/')) {
+                previewDiv.innerHTML = `<video controls style="max-width: 100%; max-height: 300px;"><source src="${url}"></video>`;
+            } else if (fileType.startsWith('audio/')) {
+                previewDiv.innerHTML = `<audio controls style="width: 100%;"><source src="${url}"></audio>`;
+            } else {
+                previewDiv.innerHTML = `<div style="padding: 20px; text-align: center;">
+                    📄 ${selectedFile.name} (${formatFileSize(selectedFile.size)})
+                </div>`;
+            }
+            
+            document.getElementById('previewArea').classList.add('show');
+            document.getElementById('uploadedUrl').innerHTML = '';
+            playClick();
+        }
+        
+        async function uploadToCatbox() {
+            if (!selectedFile) {
+                showToast('Pilih file dulu!', 'error');
+                return;
+            }
+            
+            // Check limit
+            const allowed = await checkAndUpdateLimit();
+            if (!allowed) return;
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.style.display = 'block';
+            
+            const formData = new FormData();
+            formData.append('fileToUpload', selectedFile);
+            formData.append('reqtype', 'fileupload');
+            
+            try {
+                // Catbox upload via CORS proxy
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://catbox.moe/user/api.php');
+                
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable) {
+                        const percent = (e.loaded / e.total) * 100;
+                        progressFill.style.width = percent + '%';
+                    }
+                };
+                
+                xhr.onload = async () => {
+                    if (xhr.status === 200) {
+                        const url = xhr.responseText.trim();
+                        document.getElementById('uploadedUrl').innerHTML = `
+                            <strong>URL Upload:</strong><br>
+                            <code style="word-break: break-all;">${url}</code>
+                            <button class="copy-btn" onclick="copyToClipboard('${url}')">📋 Copy</button>
+                            ${createDownloadButton(url, selectedFile.name, 'file')}
+                        `;
+                        
+                        await useLimit();
+                        showToast('Upload sukses!', 'success');
+                    } else {
+                        showToast('Upload gagal!', 'error');
+                    }
+                    progressBar.style.display = 'none';
+                };
+                
+                xhr.onerror = () => {
+                    showToast('Upload error!', 'error');
+                    progressBar.style.display = 'none';
+                };
+                
+                xhr.send(formData);
+                
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+                progressBar.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
