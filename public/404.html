@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>404 - IkyTools</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f1f, #1a1a2e);
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+        .error-container {
+            text-align: center;
+        }
+        h1 {
+            font-size: 100px;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .glitch {
+            font-size: 20px;
+            animation: glitch 1s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: -2px 0 red, 2px 0 blue; }
+            25% { text-shadow: 2px 0 red, -2px 0 blue; }
+            50% { text-shadow: -2px 0 blue, 2px 0 red; }
+            75% { text-shadow: 2px 0 blue, -2px 0 red; }
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+            border: 1px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        a:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>404</h1>
+        <div class="glitch">[ERROR] PAGE NOT FOUND 💀</div>
+        <p>Yang lu cari gak ada njir!</p>
+        <a href="/" onclick="playClick()">Kembali ke Login</a>
+    </div>
+    <audio id="clickSound" src="/audio/click.mp3" preload="auto"></audio>
+    <script>
+        function playClick() {
+            const audio = document.getElementById('clickSound');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log('Audio blocked'));
+            }
+        }
+    </script>
+</body>
+</html>
