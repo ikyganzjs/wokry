@@ -105,7 +105,7 @@ app.get("/capcut", (req, res) => {
 
 // Instagram Downloader
 app.get("/instagram", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "pages", "instagram.html"));
+    res.sendFile(path.join(__dirname, "public", "pages", "ig.html"));
 });
 
 // TikTok Downloader
